@@ -26,9 +26,11 @@ describe('Grid tests', () => {
     await db.migrate();
 
     grid = new ExampleGrid(db);
+    const promises = [];
     for (let i = 1; i <= 5; i++) {
-      await db.persist(new ExampleEntity(i.toString()));
+      promises.push(db.persist(new ExampleEntity(i.toString())));
     }
+    await Promise.all(promises);
   });
 
   beforeEach(() => {
