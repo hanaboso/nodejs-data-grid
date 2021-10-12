@@ -1,0 +1,28 @@
+version: '3.5'
+services:
+
+    app:
+        image: app:tag
+        build: ./docker
+        user: ${DEV_UID}:${DEV_GID}
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        ports:
+            - ${DEV_IP}:8080:8080
+        environment:
+            # Envs for tests are load from .jest/testEnvs.js
+            JEST_DOCKER: 1
+            APP_ENV: 'debug'
+            MONGODB_DSN: 'mongodb://mongo:27017/nodejs-data-grid'
+        command: sleep infinity
+
+    mariadb:
+        image: mariadb:latest
+        ports:
+            - ${DEV_IP}:3306:3306
+        environment:
+            MARIADB_ROOT_PASSWORD: root
+
+    wait-for-it:
+        image: hanabosocom/wait-for-it:master

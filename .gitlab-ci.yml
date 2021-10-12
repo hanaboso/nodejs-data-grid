@@ -1,0 +1,20 @@
+---
+
+stages:
+    - test
+    - cleanup
+
+nodejs-test:
+    stage: test
+    script:
+        - export COMPOSE_PROJECT_NAME="${CI_PIPELINE_ID}-nodejs-data-grid"
+        - export COMPOSE_FILE=docker-compose.ci.yml
+        - make ${COMPOSE_FILE} test
+
+cleanup:
+    stage: cleanup
+    when: always
+    script:
+        - export COMPOSE_PROJECT_NAME="${CI_PIPELINE_ID}-nodejs-data-grid"
+        - export COMPOSE_FILE=docker-compose.ci.yml
+        - make ${COMPOSE_FILE} docker-down-clean || echo "cleanup phase failed"
