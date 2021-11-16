@@ -3,7 +3,7 @@ import { Query } from '@deepkit/orm';
 import { ClassType } from '@deepkit/core';
 import ExampleEntity from './ExampleEntity';
 
-export default class ExampleGrid extends AGrid {
+export default class ExampleGrid extends AGrid<ExampleEntity> {
 
   protected entity: ClassType = ExampleEntity;
 
@@ -11,9 +11,11 @@ export default class ExampleGrid extends AGrid {
     id: 'id',
     namae: 'name',
   };
+
   protected sortableColumns: Record<string, string> | null = {
     id: 'id',
   };
+
   protected searchableColumns: string[] | null = [
     'namae'
   ];
