@@ -3,7 +3,7 @@ import { ClassType } from '@deepkit/core';
 import { Resolve } from '@deepkit/orm/src/utils';
 import { IGridRequestDto, IGridRequestDtoFilter, Operator } from './GridRequestDto';
 
-export default abstract class AGrid {
+export default abstract class AGrid<T> {
 
   constructor(private db: Database) {
   }
@@ -16,7 +16,7 @@ export default abstract class AGrid {
 
   protected searchableColumns: string[] | null = null;
 
-  public async filter(dto: IGridRequestDto): Promise<Resolve<Query<any>>[]> {
+  public async filter(dto: IGridRequestDto): Promise<Resolve<Query<T>>[]> {
     let query = this.searchQuery(this.db.query(this.entity)).filter(this.buildFilter(dto));
     query = this.buildSorter(query, dto);
     if (dto.paging) {
