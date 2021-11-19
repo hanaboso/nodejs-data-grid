@@ -45,18 +45,19 @@ describe('Grid tests', () => {
   });
 
   it('Basic fetch', async () => {
-    const data: ExampleEntity[] = await grid.filter(dto);
-    expect(data.length).toEqual(2);
-    expect(data[0].id).toEqual(1);
-    expect(data[1].name).toEqual('2');
+    const data = await grid.filter(dto);
+    expect(data.items.length).toEqual(2);
+    expect(data.items[0].id).toEqual(1);
+    expect(data.items[1].name).toEqual('2');
   });
 
   it('Last page', async () => {
     dto.paging!.page = 3;
-    const data: ExampleEntity[] = await grid.filter(dto);
-    expect(data.length).toEqual(1);
-    expect(data[0].id).toEqual(5);
-    expect(data[0].name).toEqual('5');
+    const data = await grid.filter(dto);
+    expect(data.paging.total).toEqual(5);
+    expect(data.items.length).toEqual(1);
+    expect(data.items[0].id).toEqual(5);
+    expect(data.items[0].name).toEqual('5');
   });
 
   it('Find', async () => {
@@ -65,9 +66,10 @@ describe('Grid tests', () => {
       operator: Operator.EQ,
       column: 'id',
     }]];
-    const data: ExampleEntity[] = await grid.filter(dto);
-    expect(data.length).toEqual(1);
-    expect(data[0].id).toEqual(2);
+    const data = await grid.filter(dto);
+    expect(data.items.length).toEqual(1);
+    expect(data.paging.total).toEqual(1);
+    expect(data.items[0].id).toEqual(2);
   });
 
   it('Find alias', async () => {
@@ -76,9 +78,9 @@ describe('Grid tests', () => {
       operator: Operator.EQ,
       column: 'namae',
     }]];
-    const data: ExampleEntity[] = await grid.filter(dto);
-    expect(data.length).toEqual(1);
-    expect(data[0].name).toEqual('3');
+    const data = await grid.filter(dto);
+    expect(data.items.length).toEqual(1);
+    expect(data.items[0].name).toEqual('3');
   });
 
   it('Sort', async () => {
@@ -86,17 +88,17 @@ describe('Grid tests', () => {
       column: 'id',
       direction: Direction.DESC,
     }];
-    const data: ExampleEntity[] = await grid.filter(dto);
-    expect(data.length).toEqual(2);
-    expect(data[0].id).toEqual(5);
-    expect(data[1].id).toEqual(4);
+    const data = await grid.filter(dto);
+    expect(data.items.length).toEqual(2);
+    expect(data.items[0].id).toEqual(5);
+    expect(data.items[1].id).toEqual(4);
   });
 
   it('Search', async () => {
     dto.search = '3';
-    const data: ExampleEntity[] = await grid.filter(dto);
-    expect(data.length).toEqual(1);
-    expect(data[0].id).toEqual(3);
+    const data = await grid.filter(dto);
+    expect(data.items.length).toEqual(1);
+    expect(data.items[0].id).toEqual(3);
   });
 
 });

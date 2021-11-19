@@ -1,7 +1,7 @@
 import { Database, Query } from '@deepkit/orm';
 import { ClassType } from '@deepkit/core';
-import { Resolve } from '@deepkit/orm/src/utils';
 import { IGridRequestDto, IGridRequestDtoFilter, Operator } from './GridRequestDto';
+import GridResponse from './GridResponse';
 
 export default abstract class AGrid<T> {
 
@@ -16,23 +16,33 @@ export default abstract class AGrid<T> {
 
   protected searchableColumns: string[] | null = null;
 
-  public async filter(dto: IGridRequestDto): Promise<Resolve<Query<T>>[]> {
-    let query = this.searchQuery(this.db.query(this.entity)).filter(this.buildFilter(dto));
-    query = this.buildSorter(query, dto);
-    if (dto.paging) {
-      query = query
-        .skip((dto.paging.page - 1) * dto.paging.itemsPerPage)
-        .limit(dto.paging.itemsPerPage);
-    }
+  public async filter(dto: IGridRequestDto): Promise<GridResponse<T>> {
+    let query = this.searchQuery(this.db.query(this.entity)).filter(this.addFilter(dto));
+    const count = await query.count();
 
-    return query.find();
+    query = this.addSorter(query, dto);
+    query = this.addPaging(query, dto);
+    const result = await query.find();
+
+    return new GridResponse(result, count, dto);
   }
 
   protected searchQuery(query: Query<any>): Query<any> {
     return query;
   }
 
-  private buildSorter(query: Query<any>, dto: IGridRequestDto): Query<any> {
+  private addPaging(query: Query<any>, dto: IGridRequestDto): Query<any> {
+    const paging = dto.paging || {
+      page: 1,
+      itemsPerPage: 10,
+    };
+
+    return query
+      .skip((paging.page - 1) * paging.itemsPerPage)
+      .limit(paging.itemsPerPage);
+  }
+
+  private addSorter(query: Query<any>, dto: IGridRequestDto): Query<any> {
     if (!dto.sorter) {
       return query;
     }
@@ -53,7 +63,7 @@ export default abstract class AGrid<T> {
     return sorted;
   }
 
-  private buildFilter(dto: IGridRequestDto): Record<string, any> {
+  private addFilter(dto: IGridRequestDto): Record<string, any> {
     const filter: Record<string, any> = { $and: [] };
 
     if (dto.filter && dto.filter.length > 0) {
