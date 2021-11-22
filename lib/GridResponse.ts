@@ -18,7 +18,7 @@ export default class GridResponse<T> {
     this.sorter = dto.sorter;
 
     const itemsPerPage = dto.paging?.itemsPerPage || 10;
-    const lastPage = Math.ceil(total / itemsPerPage);
+    const lastPage = Math.max(Math.ceil(total / itemsPerPage), 1);
     const page = dto.paging?.page || 1;
 
     this.paging = {
