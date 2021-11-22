@@ -37,6 +37,10 @@ export default abstract class AGrid<T> {
       itemsPerPage: 10,
     };
 
+    paging.page = Math.max(paging.page, 1);
+    paging.itemsPerPage = Math.max(paging.itemsPerPage, 1);
+    dto.paging = paging; // eslint-disable-line
+
     return query
       .skip((paging.page - 1) * paging.itemsPerPage)
       .limit(paging.itemsPerPage);
