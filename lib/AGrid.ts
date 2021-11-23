@@ -72,13 +72,13 @@ export default abstract class AGrid<T> {
 
     if (dto.filter && dto.filter.length > 0) {
       dto.filter.forEach(and => {
-        const orFilter: Record<string, any> = {};
+        const orFilter: Record<string, any>[] = [];
         and.forEach(or => {
           const column = this.getFilterableColumn(or.column);
-          orFilter[column] = AGrid.createExpression(or);
+          orFilter.push({ [column]: AGrid.createExpression(or) });
         });
 
-        filter.$and.push(orFilter);
+        filter.$and.push({ $or: orFilter });
       });
     }
 
@@ -88,7 +88,7 @@ export default abstract class AGrid<T> {
         const name = this.getFilterableColumn(column);
         searches[name] = { $regex: dto.search };
       });
-      filter.$and.push(searches);
+      filter.$and.push({ $or: [searches] });
     }
 
     return filter;
