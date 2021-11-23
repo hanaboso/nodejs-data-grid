@@ -17,7 +17,8 @@ export default class ExampleGrid extends AGrid<ExampleEntity> {
   };
 
   protected searchableColumns: string[] | null = [
-    'namae'
+    'id',
+    'namae',
   ];
 
   protected searchQuery(query: Query<any>): Query<any> {
