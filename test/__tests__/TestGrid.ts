@@ -51,6 +51,35 @@ describe('Grid tests', () => {
     expect(data.items[1].name).toEqual('2');
   });
 
+  it('Or fetch', async () => {
+    dto.filter = [[{
+      value: ['2'],
+      operator: Operator.EQ,
+      column: 'id',
+    }, {
+      value: ['3'],
+      operator: Operator.EQ,
+      column: 'id',
+    }]];
+    const data = await grid.filter(dto);
+    expect(data.items.length).toEqual(2);
+    expect(data.items[0].id).toEqual(2);
+  });
+
+  it('And fetch', async () => {
+    dto.filter = [[{
+      value: ['2'],
+      operator: Operator.EQ,
+      column: 'id',
+    }], [{
+      value: ['3'],
+      operator: Operator.EQ,
+      column: 'id',
+    }]];
+    const data = await grid.filter(dto);
+    expect(data.items.length).toEqual(0);
+  });
+
   it('Last page', async () => {
     dto.paging!.page = 3;
     const data = await grid.filter(dto);
