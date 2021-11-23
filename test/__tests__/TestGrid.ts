@@ -27,7 +27,7 @@ describe('Grid tests', () => {
 
     grid = new ExampleGrid(db);
     for (let i = 1; i <= 5; i++) {
-      await db.persist(new ExampleEntity(i.toString()));
+      await db.persist(new ExampleEntity(`name_${i.toString()}`));
     }
   });
 
@@ -48,7 +48,7 @@ describe('Grid tests', () => {
     const data = await grid.filter(dto);
     expect(data.items.length).toEqual(2);
     expect(data.items[0].id).toEqual(1);
-    expect(data.items[1].name).toEqual('2');
+    expect(data.items[1].name).toEqual('name_2');
   });
 
   it('Or fetch', async () => {
@@ -86,7 +86,7 @@ describe('Grid tests', () => {
     expect(data.paging.total).toEqual(5);
     expect(data.items.length).toEqual(1);
     expect(data.items[0].id).toEqual(5);
-    expect(data.items[0].name).toEqual('5');
+    expect(data.items[0].name).toEqual('name_5');
   });
 
   it('Find', async () => {
@@ -103,13 +103,13 @@ describe('Grid tests', () => {
 
   it('Find alias', async () => {
     dto.filter = [[{
-      value: ['3'],
+      value: ['name_3'],
       operator: Operator.EQ,
       column: 'namae',
     }]];
     const data = await grid.filter(dto);
     expect(data.items.length).toEqual(1);
-    expect(data.items[0].name).toEqual('3');
+    expect(data.items[0].name).toEqual('name_3');
   });
 
   it('Sort', async () => {
@@ -124,10 +124,21 @@ describe('Grid tests', () => {
   });
 
   it('Search', async () => {
-    dto.search = '3';
+    dto.search = '_3';
     const data = await grid.filter(dto);
     expect(data.items.length).toEqual(1);
     expect(data.items[0].id).toEqual(3);
+  });
+
+  it('Search with filter', async () => {
+    dto.search = '3';
+    dto.filter = [[{
+      value: ['3'],
+      operator: Operator.GT,
+      column: 'id',
+    }]];
+    const data = await grid.filter(dto);
+    expect(data.items.length).toEqual(0);
   });
 
 });

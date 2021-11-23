@@ -83,12 +83,12 @@ export default abstract class AGrid<T> {
     }
 
     if (dto.search) {
-      const searches: Record<string, any> = {};
+      const searches: Record<string, any>[] = [];
       this.searchableColumns?.forEach(column => {
         const name = this.getFilterableColumn(column);
-        searches[name] = { $regex: dto.search };
+        searches.push({ [name]: { $regex: dto.search } });
       });
-      filter.$and.push({ $or: [searches] });
+      filter.$and.push({ $or: searches });
     }
 
     return filter;
