@@ -17,7 +17,13 @@ export default abstract class AGrid<T> {
   protected searchableColumns: string[] | null = null;
 
   public async filter(dto: IGridRequestDto): Promise<GridResponse<T>> {
-    let query = this.searchQuery(this.db.query(this.entity)).filter(this.addFilter(dto));
+    let query = this.searchQuery(this.db.query(this.entity));
+    const filters = this.addFilter(dto);
+    // Must be checked for SoftDelete plugin
+    if (!AGrid.isFilterEmpty(filters)) {
+      query = query.filter(filters);
+    }
+
     const count = await query.count();
 
     query = this.addSorter(query, dto);
@@ -105,6 +111,17 @@ export default abstract class AGrid<T> {
     }
 
     return column;
+  }
+
+  private static isFilterEmpty(filters: Record<string, any>): boolean {
+    if (!filters) {
+      return true;
+    }
+    if (Object.keys(filters).length === 1 && '$and' in filters) {
+      return filters.$and.length <= 0;
+    }
+
+    return false;
   }
 
   private static createExpression(filter: IGridRequestDtoFilter): any {
