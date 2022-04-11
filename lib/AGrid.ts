@@ -53,12 +53,17 @@ export default abstract class AGrid<T> {
   }
 
   private addSorter(query: Query<any>, dto: IGridRequestDto): Query<any> {
-    if (!dto.sorter) {
+    const allSorts = dto.sorter || [];
+    if (dto.additionalSorter) {
+      allSorts.push(...dto.additionalSorter);
+    }
+
+    if (allSorts.length <= 0) {
       return query;
     }
 
     let sorted = query;
-    dto.sorter.forEach(sorter => {
+    allSorts.forEach(sorter => {
       let column = sorter.column;
       if (this.sortableColumns != null) {
         if (column in this.sortableColumns) {
@@ -75,9 +80,13 @@ export default abstract class AGrid<T> {
 
   private addFilter(dto: IGridRequestDto): Record<string, any> {
     const filter: Record<string, any> = { $and: [] };
+    const allFilters = dto.filter || [];
+    if (dto.additionalFilter) {
+      allFilters.push(...dto.additionalFilter);
+    }
 
-    if (dto.filter && dto.filter.length > 0) {
-      dto.filter.forEach(and => {
+    if (allFilters.length > 0) {
+      allFilters.forEach(and => {
         const orFilter: Record<string, any>[] = [];
         and.forEach(or => {
           const column = this.getFilterableColumn(or.column);
