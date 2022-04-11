@@ -1,6 +1,8 @@
 export interface IGridRequestDto {
   filter?: IGridRequestDtoFilter[][],
+  additionalFilter?: IGridRequestDtoFilter[][],
   sorter?: IGridRequestDtoSorter[],
+  additionalSorter?: IGridRequestDtoSorter[],
   search?: string,
   paging?: {
     page: number,
