@@ -1,6 +1,11 @@
 import { Database, Query } from '@deepkit/orm';
 import { ClassType } from '@deepkit/core';
-import { IGridRequestDto, IGridRequestDtoFilter, Operator } from './GridRequestDto';
+import {
+  IGridRequestDto,
+  IGridRequestDtoFilter,
+  IGridRequestDtoSorter,
+  Operator,
+} from './GridRequestDto';
 import GridResponse from './GridResponse';
 
 export default abstract class AGrid<T> {
@@ -53,7 +58,7 @@ export default abstract class AGrid<T> {
   }
 
   private addSorter(query: Query<any>, dto: IGridRequestDto): Query<any> {
-    const allSorts = dto.sorter || [];
+    const allSorts: IGridRequestDtoSorter[] = JSON.parse(JSON.stringify(dto.sorter || []));
     if (dto.additionalSorter) {
       allSorts.push(...dto.additionalSorter);
     }
@@ -80,7 +85,7 @@ export default abstract class AGrid<T> {
 
   private addFilter(dto: IGridRequestDto): Record<string, any> {
     const filter: Record<string, any> = { $and: [] };
-    const allFilters = dto.filter || [];
+    const allFilters: IGridRequestDtoFilter[][] = JSON.parse(JSON.stringify(dto.filter || []));
     if (dto.additionalFilter) {
       allFilters.push(...dto.additionalFilter);
     }
