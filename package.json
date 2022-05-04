@@ -1,6 +1,6 @@
 {
     "name": "nodejs-data-grid",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "description": "",
     "main": "dist/lib/index.js",
     "scripts": {
@@ -13,19 +13,20 @@
     "author": "info@hanaboso.com",
     "license": "GPL-3.0-or-later",
     "dependencies": {
-        "@deepkit/core": "^1.0.1-alpha.58",
-        "@deepkit/crypto": "^1.0.1-alpha.35",
-        "@deepkit/injector": "^1.0.1-alpha.58",
-        "@deepkit/logger": "^1.0.1-alpha.58",
-        "@deepkit/orm": "^1.0.1-alpha.58",
-        "@deepkit/stopwatch": "^1.0.1-alpha.58",
-        "@deepkit/type": "^1.0.1-alpha.58",
+        "@deepkit/core": "^1.0.1-alpha.65",
+        "@deepkit/crypto": "^1.0.1-alpha.65",
+        "@deepkit/injector": "^1.0.1-alpha.71",
+        "@deepkit/logger": "^1.0.1-alpha.65",
+        "@deepkit/orm": "^1.0.1-alpha.71",
+        "@deepkit/stopwatch": "^1.0.1-alpha.71",
+        "@deepkit/type": "^1.0.1-alpha.71",
+        "@deepkit/type-compiler": "^1.0.1-alpha.71",
         "rxjs": "^7.4.0",
         "typescript": "^4.5.2"
     },
     "devDependencies": {
-        "@deepkit/mysql": "^1.0.1-alpha.58",
-        "@deepkit/sql": "^1.0.1-alpha.58",
+        "@deepkit/mysql": "^1.0.1-alpha.71",
+        "@deepkit/sql": "^1.0.1-alpha.71",
         "@types/jest": "^27.0.3",
         "@types/node": "^16.11.9",
         "@typescript-eslint/eslint-plugin": "^5.4.0",
