@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "ES2020",
         "module": "commonjs",
         "moduleResolution": "node",
         "rootDir": "./",
@@ -18,11 +18,12 @@
         "resolveJsonModule": true,
         "skipLibCheck": true
     },
+    "reflection": true,
     "include": [
         "lib",
-        "test",
+        "test"
     ],
     "exclude": [
-        "node_modules",
+        "node_modules"
     ]
 }
