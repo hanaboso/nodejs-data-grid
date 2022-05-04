@@ -1,4 +1,6 @@
-import { entity, PrimaryKey, AutoIncrement, integer } from '@deepkit/type';
+import {
+  entity, PrimaryKey, AutoIncrement, integer,
+} from '@deepkit/type';
 
 @entity.name('example')
 export default class ExampleEntity {
