@@ -1,9 +1,9 @@
-import { Database } from '@deepkit/orm';
 import { MySQLDatabaseAdapter } from '@deepkit/mysql';
-import ExampleEntity from '../ExampleEntity';
-import { Direction, IGridRequestDto, Operator } from '../../lib/GridRequestDto';
-import ExampleGrid from '../ExampleGrid';
+import { Database } from '@deepkit/orm';
 import { SqlQuery } from '@deepkit/sql';
+import { Direction, IGridRequestDto, Operator } from '../../lib/GridRequestDto';
+import ExampleEntity, { LososEntity } from '../ExampleEntity';
+import ExampleGrid from '../ExampleGrid';
 
 describe('Grid tests', () => {
   let db: Database;
@@ -18,16 +18,18 @@ describe('Grid tests', () => {
       password: 'root',
       user: 'root',
     });
-    db = new Database(adapter, [ExampleEntity]);
+    db = new Database(adapter, [LososEntity, ExampleEntity]);
     try {
-      await db.raw(new SqlQuery(['TRUNCATE example;'])).execute();
+      await db.raw(new SqlQuery(['TRUNCATE example;', 'TRUNCATE losos;'])).execute();
+      await db.migrate();
     } catch (e) {
     }
-    await db.migrate();
 
     grid = new ExampleGrid(db);
     for (let i = 1; i <= 5; i++) {
-      await db.persist(new ExampleEntity(`name_${i.toString()}`));
+      const losos = new LososEntity(`losos_${i}`);
+      await db.persist(losos);
+      await db.persist(new ExampleEntity(`name_${i.toString()}`, losos));
     }
   });
 
@@ -64,6 +66,43 @@ describe('Grid tests', () => {
     const data = await grid.filter(dto);
     expect(data.items.length).toEqual(2);
     expect(data.items[0].id).toEqual(2);
+  });
+
+  it('Join filter', async () => {
+    dto.filter = [[{
+      value: ['2'],
+      operator: Operator.EQ,
+      column: 'losos',
+    }, {
+      value: ['3'],
+      operator: Operator.EQ,
+      column: 'losos',
+    }]];
+    const data = await grid.filter(dto);
+    expect(data.items.length).toEqual(2);
+    expect(data.items[0].id).toEqual(2);
+  });
+
+  it('Join sorter & filter', async () => {
+    dto.filter = [[{
+      value: ['2'],
+      operator: Operator.EQ,
+      column: 'losos',
+    }, {
+      value: ['3'],
+      operator: Operator.EQ,
+      column: 'losos',
+    }]];
+    dto.sorter = [
+      // {
+      //   column: 'losos',
+      //   direction: Direction.DESC,
+      // },
+    ];
+    const data = await grid.filter(dto);
+    const dd = data.items[0];
+    expect(data.items.length).toEqual(2);
+    expect(data.items[0].id).toEqual(3);
   });
 
   it('And fetch', async () => {

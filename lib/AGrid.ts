@@ -8,6 +8,8 @@ import {
 } from './GridRequestDto';
 import GridResponse from './GridResponse';
 
+export type FilterList = Record<string, Record<string, any>>;
+
 export default abstract class AGrid<T> {
 
   constructor(private db: Database) {
@@ -22,12 +24,8 @@ export default abstract class AGrid<T> {
   protected searchableColumns: string[] | null = null;
 
   public async filter(dto: IGridRequestDto): Promise<GridResponse<T>> {
-    let query = this.searchQuery(this.db.query(this.entity));
-    const filters = this.addFilter(dto);
-    // Must be checked for SoftDelete plugin
-    if (!AGrid.isFilterEmpty(filters)) {
-      query = query.filter(filters);
-    }
+    const filters = this.parseFilter(dto);
+    let query = this.searchQuery(this.db.query(this.entity), filters);
 
     const count = await query.count();
 
@@ -38,8 +36,8 @@ export default abstract class AGrid<T> {
     return new GridResponse(result, count, dto);
   }
 
-  protected searchQuery(query: Query<any>): Query<any> {
-    return query;
+  protected searchQuery(query: Query<any>, filters: FilterList): Query<any> {
+    return query.filter(filters['']);
   }
 
   private addPaging(query: Query<any>, dto: IGridRequestDto): Query<any> {
@@ -83,8 +81,8 @@ export default abstract class AGrid<T> {
     return sorted;
   }
 
-  private addFilter(dto: IGridRequestDto): Record<string, any> {
-    const filter: Record<string, any> = { $and: [] };
+  private parseFilter(dto: IGridRequestDto): FilterList {
+    const filters: FilterList = {};
     const allFilters: IGridRequestDtoFilter[][] = JSON.parse(JSON.stringify(dto.filter || []));
     if (dto.additionalFilter) {
       allFilters.push(...dto.additionalFilter);
@@ -92,29 +90,48 @@ export default abstract class AGrid<T> {
 
     if (allFilters.length > 0) {
       allFilters.forEach(and => {
-        const orFilter: Record<string, any>[] = [];
+        const orFilters: Record<string, Record<string, any>[]> = {};
         and.forEach(or => {
-          const column = this.getFilterableColumn(or.column);
-          orFilter.push({ [column]: AGrid.createExpression(or) });
+          const { table, column} = this.getFilterableColumn(or.column);
+          if (!(table in orFilters)) {
+              orFilters[table] = [];
+          }
+
+          orFilters[table].push({ [column]: AGrid.createExpression(or) });
         });
 
-        filter.$and.push({ $or: orFilter });
+        Object.entries(orFilters).forEach(([table, filter]) => {
+            if (!(table in filters)) {
+                filters[table] = { $and: [] };
+            }
+            filters[table].$and.push({ $or: filter });
+        });
       });
     }
 
     if (dto.search) {
-      const searches: Record<string, any>[] = [];
-      this.searchableColumns?.forEach(column => {
-        const name = this.getFilterableColumn(column);
-        searches.push({ [name]: { $regex: dto.search } });
+      const searches: Record<string, Record<string, any>[]> = {};
+      this.searchableColumns?.forEach(sColumn => {
+        const { table, column } = this.getFilterableColumn(sColumn);
+        if (!(table in searches)) {
+            searches[table] = [];
+        }
+
+        searches[table].push({ [column]: { $regex: dto.search } });
       });
-      filter.$and.push({ $or: searches });
+
+        Object.entries(searches).forEach(([table, filter]) => {
+            if (!(table in filters)) {
+                filters[table] = { $and: [] };
+            }
+            filters[table].$and.push({ $or: filter });
+        });
     }
 
-    return filter;
+    return filters;
   }
 
-  private getFilterableColumn(name: string): string {
+  private getFilterableColumn(name: string): { column: string, table: string } {
     let column = name;
     if (this.filterableColumns != null) {
       if (column in this.filterableColumns) {
@@ -124,18 +141,12 @@ export default abstract class AGrid<T> {
       }
     }
 
-    return column;
-  }
+    const parts = column.split('.', 2);
 
-  private static isFilterEmpty(filters: Record<string, any>): boolean {
-    if (!filters) {
-      return true;
-    }
-    if (Object.keys(filters).length === 1 && '$and' in filters) {
-      return filters.$and.length <= 0;
-    }
-
-    return false;
+    return {
+        table: parts.length > 1 ? parts[0] : '',
+        column: parts.length > 1 ? parts[1] : parts[0],
+    };
   }
 
   private static createExpression(filter: IGridRequestDtoFilter): any {
