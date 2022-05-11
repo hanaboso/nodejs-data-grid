@@ -1,6 +1,6 @@
 import { MySQLDatabaseAdapter } from '@deepkit/mysql';
 import { Database } from '@deepkit/orm';
-import kknex from 'knex';
+import kknex, { Knex } from 'knex';
 import { Direction, IGridRequestDto, Operator } from '../../lib/GridRequestDto';
 import ExampleKnexGrid from '../ExampleKnexGrid';
 
@@ -9,6 +9,7 @@ describe('Grid tests', () => {
   let db: Database;
   let dto: IGridRequestDto;
   let adapter: MySQLDatabaseAdapter;
+  let knex: Knex;
 
   beforeAll(async () => {
     adapter = new MySQLDatabaseAdapter({
@@ -18,7 +19,9 @@ describe('Grid tests', () => {
       user: 'root',
     });
 
-    const knex = kknex({
+    grid = new ExampleKnexGrid(knex);
+
+    knex = kknex({
       client: 'mysql',
       connection: {
         host : process.env.MARIADB_HOST,
@@ -28,8 +31,6 @@ describe('Grid tests', () => {
         database : 'test'
       }
     });
-
-    grid = new ExampleKnexGrid(knex);
 
     await knex.raw('SET FOREIGN_KEY_CHECKS = 0;');
     await knex.raw('DROP TABLE IF EXISTS losos;');
@@ -54,6 +55,7 @@ describe('Grid tests', () => {
 
   afterAll(async () => {
     await db.disconnect(true);
+    await knex.destroy();
   });
 
   it('Basic fetch', async () => {
