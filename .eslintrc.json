@@ -25,6 +25,8 @@
             "ignoreUrls": true,
             "ignoreComments": false
         }],
+        "@typescript-eslint/ban-ts-comment": "off",
+        "object-curly-newline": "off",
         "padded-blocks": "off",
         "class-methods-use-this": "off",
         "prefer-destructuring": "off",
