@@ -70,7 +70,7 @@ export default abstract class AKnexGrid<T> {
           throw new Error(`[${column}] is not allowed for sorting`);
         }
       }
-      q = q.orderBy(column, sorter.direction.toLowerCase() as 'asc' | 'desc');
+      q = q.orderByRaw(column, sorter.direction.toLowerCase() as 'asc' | 'desc');
     });
 
     return q;
