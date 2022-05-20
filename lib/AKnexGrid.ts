@@ -23,14 +23,20 @@ export default abstract class AKnexGrid<T> {
   public async filter(dto: IGridRequestDto): Promise<GridResponse<T>> {
     let query = this.searchQuery(this.knex, dto);
     query = this.addFilters(query, dto);
-    const countRes = await query.clone().clear('select').clear('group').count();
+    const countRes = await this.countQuery(query.clone().clear('select').clear('group'));
     query = this.addSorters(query, dto);
     query = this.addPaging(query, dto);
 
     const result = await query;
-    const count = countRes[0]?.['count(*)'] ?? 0;
+    // @ts-ignore
+    const count = countRes[0]?.count ?? 0;
 
     return new GridResponse(result.map(this.toObject), count, dto);
+  }
+
+  // @ts-ignore
+  protected async countQuery(knex: Knex) {
+    return knex.count('*', { as: 'count' });
   }
 
   // @ts-ignore
