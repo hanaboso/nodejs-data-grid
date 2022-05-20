@@ -8,6 +8,7 @@ export interface IGridRequestDto {
     page: number,
     itemsPerPage: number,
   },
+  extras?: Record<string, any>,
 }
 
 export interface IGridRequestDtoFilter {
