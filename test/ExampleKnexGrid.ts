@@ -1,5 +1,6 @@
 import AKnexGrid from '../lib/AKnexGrid';
 import { Knex } from 'knex';
+import { IGridRequestDto } from '../lib/GridRequestDto';
 import GridItem from './GridItem';
 
 export default class ExampleGrid extends AKnexGrid<GridItem> {
@@ -20,7 +21,7 @@ export default class ExampleGrid extends AKnexGrid<GridItem> {
         'namae',
     ];
 
-    protected searchQuery(knex: Knex) {
+    protected searchQuery(knex: Knex, dto: IGridRequestDto) {
         return knex
             .from('example as e')
             .leftJoin('losos as l', 'e.lososId', '=', 'l.id')

@@ -16,12 +16,12 @@ export default abstract class AKnexGrid<T> {
   protected searchableColumns: string[] | null = null;
 
   // @ts-ignore
-  protected abstract searchQuery(knex: Knex);
+  protected abstract searchQuery(knex: Knex, dto: IGridRequestDto);
 
   protected abstract toObject(data: Record<string, unknown>): T;
 
   public async filter(dto: IGridRequestDto): Promise<GridResponse<T>> {
-    let query = this.searchQuery(this.knex);
+    let query = this.searchQuery(this.knex, dto);
     query = this.addFilters(query, dto);
     const countRes = await query.clone().clear('select').clear('group').count();
     query = this.addSorters(query, dto);
