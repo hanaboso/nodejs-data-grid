@@ -1,17 +1,23 @@
 import { Knex } from 'knex';
-import { IGridRequestDto, IGridRequestDtoFilter, IGridRequestDtoSorter, Operator } from './GridRequestDto';
+import { Direction, IGridRequestDto, IGridRequestDtoFilter, IGridRequestDtoSorter, Operator } from './GridRequestDto';
 import GridResponse from './GridResponse';
 
-export type FilterList = Record<string, Record<string, any>>;
+export interface ICallbackFilter {
+  (queryBuilder: Knex.QueryBuilder, column: string, operator: Operator, values: string[]): Knex.QueryBuilder;
+}
+
+export interface ICallbackSorter {
+  (queryBuilder: Knex.QueryBuilder, column: string, direction: Direction): Knex.QueryBuilder;
+}
 
 export default abstract class AKnexGrid<T> {
 
   constructor(private knex: Knex) {
   }
 
-  protected filterableColumns: Record<string, string> | null = null;
+  protected filterableColumns: Record<string, string | ICallbackFilter> | null = null;
 
-  protected sortableColumns: Record<string, string> | null = null;
+  protected sortableColumns: Record<string, string | ICallbackSorter> | null = null;
 
   protected searchableColumns: string[] | null = null;
 
@@ -68,15 +74,19 @@ export default abstract class AKnexGrid<T> {
     }
 
     allSorts.forEach(sorter => {
-      let column = sorter.column;
-      if (this.sortableColumns != null) {
-        if (column in this.sortableColumns) {
-          column = this.sortableColumns[column];
+      const sColumn = sorter.column;
+
+      if (this.sortableColumns != null && sColumn in this.sortableColumns) {
+        const column = this.sortableColumns[sColumn];
+
+        if (typeof column === 'string') {
+          q = q.orderByRaw(`${column} ${sorter.direction.toLowerCase()}`);
         } else {
-          throw new Error(`[${column}] is not allowed for sorting`);
+          q = column(q, sColumn, sorter.direction);
         }
+      } else {
+        throw new Error(`[${sColumn}] is not allowed for sorting`);
       }
-      q = q.orderByRaw(`${column} ${sorter.direction.toLowerCase()}`);
     });
 
     return q;
@@ -98,7 +108,12 @@ export default abstract class AKnexGrid<T> {
 
           and.forEach(or => {
             const column = that.getFilterableColumn(or.column);
-            innerQ = AKnexGrid.addOrExpression(innerQ, { column, value: or.value, operator: or.operator });
+
+            if (typeof column === 'string') {
+              innerQ = AKnexGrid.addOrExpression(innerQ, { column, value: or.value, operator: or.operator });
+            } else {
+              innerQ = column(innerQ, or.column, or.operator, or.value);
+            }
           });
         });
       });
@@ -111,8 +126,12 @@ export default abstract class AKnexGrid<T> {
 
         that.searchableColumns?.forEach(sColumn => {
           const column = that.getFilterableColumn(sColumn);
-          // @ts-ignore
-          innerQ = AKnexGrid.addOrExpression(innerQ, { column, value: [dto.search ?? ''], operator: Operator.LIKE });
+
+          if (typeof column === 'string') {
+            innerQ = AKnexGrid.addOrExpression(innerQ, { column, value: [dto.search ?? ''], operator: Operator.LIKE });
+          } else {
+            innerQ = column(innerQ, sColumn, Operator.LIKE, [dto.search ?? '']);
+          }
         });
       });
     }
@@ -120,17 +139,12 @@ export default abstract class AKnexGrid<T> {
     return q;
   }
 
-  private getFilterableColumn(name: string): string {
-    let column = name;
-    if (this.filterableColumns != null) {
-      if (column in this.filterableColumns) {
-        column = this.filterableColumns[column];
-      } else {
-        throw new Error(`[${column}] is not allowed for filtering`);
-      }
+  private getFilterableColumn(name: string): string | ICallbackFilter {
+    if (this.filterableColumns !== null && name in this.filterableColumns) {
+      return this.filterableColumns[name];
     }
 
-    return column;
+    throw new Error(`[${name}] is not allowed for filtering`);
   }
 
   // @ts-ignore
