@@ -6,21 +6,10 @@ import ExampleKnexGrid from '../ExampleKnexGrid';
 
 describe('Grid tests', () => {
   let grid: ExampleKnexGrid;
-  let db: Database;
   let dto: IGridRequestDto;
-  let adapter: MySQLDatabaseAdapter;
   let knex: Knex;
 
   beforeAll(async () => {
-    adapter = new MySQLDatabaseAdapter({
-      host: process.env.MARIADB_HOST,
-      database: 'test',
-      password: 'root',
-      user: 'root',
-    });
-
-    grid = new ExampleKnexGrid(knex);
-
     knex = kknex({
       client: 'mysql',
       connection: {
@@ -31,6 +20,8 @@ describe('Grid tests', () => {
         database : 'test'
       }
     });
+
+    grid = new ExampleKnexGrid(knex);
 
     await knex.raw('SET FOREIGN_KEY_CHECKS = 0;');
     await knex.raw('DROP TABLE IF EXISTS losos;');
@@ -54,7 +45,6 @@ describe('Grid tests', () => {
   });
 
   afterAll(async () => {
-    await db.disconnect(true);
     await knex.destroy();
   });
 
@@ -112,7 +102,6 @@ describe('Grid tests', () => {
       },
     ];
     const data = await grid.filter(dto);
-    const dd = data.items[0];
     expect(data.items.length).toEqual(2);
     expect(data.items[0].id).toEqual(3);
   });
@@ -192,4 +181,24 @@ describe('Grid tests', () => {
     expect(data.items.length).toEqual(0);
   });
 
+  it('Callback filters and sorters', async () => {
+    dto.filter = [[{
+      value: ['1', '3', '5'],
+      operator: Operator.IN,
+      column: 'callback',
+    }]];
+    dto.sorter = [{
+      column: 'callback',
+      direction: Direction.DESC,
+    }];
+    dto.paging = {
+      page: 1,
+      itemsPerPage: 5,
+    };
+
+    const data = await grid.filter(dto);
+
+    expect(data.items.length).toEqual(3);
+    expect(data.items.map((item) => item.id)).toEqual([5, 3, 1]);
+  });
 });
