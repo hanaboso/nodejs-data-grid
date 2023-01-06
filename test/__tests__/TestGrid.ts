@@ -12,13 +12,7 @@ describe('Grid tests', () => {
   beforeAll(async () => {
     knex = kknex({
       client: 'mysql',
-      connection: {
-        host : process.env.MARIADB_HOST,
-        port : 3306,
-        user : 'root',
-        password : 'root',
-        database : 'test'
-      }
+      connection: process.env.MARIADB_DSN,
     });
 
     grid = new ExampleKnexGrid(knex);
