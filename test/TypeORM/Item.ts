@@ -5,16 +5,18 @@ import Tag from './Tag';
 
 @Entity()
 export default class Item extends AAbstract {
-  @Column()
-  public name!: string;
 
-  @Column()
-  public description!: string;
+    @Column()
+    public name!: string;
 
-  @ManyToOne(() => Category, (category) => category.items)
-  public category!: Category;
+    @Column()
+    public description!: string;
 
-  @ManyToMany(() => Tag, (tag) => tag.items, { cascade: true })
-  @JoinTable({ name: 'item_tag' })
-  public tags!: Tag[];
+    @ManyToOne(() => Category, (category) => category.items)
+    public category!: Category;
+
+    @ManyToMany(() => Tag, (tag) => tag.items, { cascade: true })
+    @JoinTable({ name: 'item_tag' })
+    public tags!: Tag[];
+
 }

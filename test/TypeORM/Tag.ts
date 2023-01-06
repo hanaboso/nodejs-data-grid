@@ -4,12 +4,14 @@ import Item from './Item';
 
 @Entity()
 export default class Tag extends AAbstract {
-  @Column()
-  public name!: string;
 
-  @Column()
-  public description!: string;
+    @Column()
+    public name!: string;
 
-  @ManyToMany(() => Item, (item) => item.tags)
-  public items!: Item[];
+    @Column()
+    public description!: string;
+
+    @ManyToMany(() => Item, (item) => item.tags)
+    public items!: Item[];
+
 }

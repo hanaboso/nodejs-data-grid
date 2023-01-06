@@ -13,33 +13,30 @@
     "author": "info@hanaboso.com",
     "license": "GPL-3.0-or-later",
     "dependencies": {
-        "@deepkit/core": "^1.0.1-alpha.65",
-        "@deepkit/crypto": "^1.0.1-alpha.65",
-        "@deepkit/injector": "^1.0.1-alpha.71",
-        "@deepkit/logger": "^1.0.1-alpha.65",
-        "@deepkit/orm": "^1.0.1-alpha.71",
-        "@deepkit/stopwatch": "^1.0.1-alpha.71",
-        "@deepkit/type": "^1.0.1-alpha.71",
-        "@deepkit/type-compiler": "^1.0.1-alpha.71",
+    },
+    "optionalDependencies": {
+        "@deepkit/core": "^1.0.1-alpha.77",
+        "@deepkit/crypto": "^1.0.1-alpha.77",
+        "@deepkit/injector": "^1.0.1-alpha.85",
+        "@deepkit/logger": "^1.0.1-alpha.77",
+        "@deepkit/orm": "^1.0.1-alpha.85",
+        "@deepkit/stopwatch": "^1.0.1-alpha.85",
+        "@deepkit/type": "^1.0.1-alpha.85",
+        "@deepkit/type-compiler": "^1.0.1-alpha.83",
         "knex": "^2.3.0",
         "mysql": "^2.18.1",
         "rxjs": "^7.8.0",
-        "typeorm": "^0.3.11",
-        "typescript": "^4.9.4"
+        "typeorm": "^0.3.11"
     },
     "devDependencies": {
         "@deepkit/mysql": "^1.0.1-alpha.71",
         "@deepkit/sql": "^1.0.1-alpha.71",
+        "@hanaboso/eslint-plugin": "^1.0.8",
         "@types/jest": "^29.2.5",
         "@types/node": "^18.11.18",
-        "@typescript-eslint/eslint-plugin": "^5.48.0",
-        "@typescript-eslint/parser": "^5.48.0",
-        "eslint": "^8.31.0",
-        "eslint-config-airbnb-base": "^15.0.0",
-        "eslint-import-resolver-typescript": "^3.5.2",
-        "eslint-plugin-import": "^2.26.0",
         "jest": "^29.3.1",
         "ts-jest": "^29.0.3",
-        "ts-node": "^10.9.1"
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.4"
     }
 }

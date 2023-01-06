@@ -2,187 +2,196 @@ import { Knex } from 'knex';
 import { Direction, IGridRequestDto, IGridRequestDtoFilter, IGridRequestDtoSorter, Operator } from './GridRequestDto';
 import GridResponse from './GridResponse';
 
-export interface ICallbackFilter {
-  (queryBuilder: Knex.QueryBuilder, column: string, operator: Operator, values: string[]): Knex.QueryBuilder;
-}
+export type ICallbackFilter = (
+    queryBuilder: Knex.QueryBuilder,
+    column: string,
+    operator: Operator,
+    values: string[],
+) => Knex.QueryBuilder;
 
-export interface ICallbackSorter {
-  (queryBuilder: Knex.QueryBuilder, column: string, direction: Direction): Knex.QueryBuilder;
-}
+export type ICallbackSorter = (
+    queryBuilder: Knex.QueryBuilder,
+    column: string,
+    direction: Direction,
+) => Knex.QueryBuilder;
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default abstract class AKnexGrid<T> {
 
-  constructor(private knex: Knex) {
-  }
+    protected filterableColumns: Record<string, ICallbackFilter | string> | null = null;
 
-  protected filterableColumns: Record<string, string | ICallbackFilter> | null = null;
+    protected sortableColumns: Record<string, ICallbackSorter | string> | null = null;
 
-  protected sortableColumns: Record<string, string | ICallbackSorter> | null = null;
+    protected searchableColumns: string[] | null = null;
 
-  protected searchableColumns: string[] | null = null;
+    public constructor(private readonly knex: Knex) {}
 
-  // @ts-ignore
-  protected abstract searchQuery(knex: Knex, dto: IGridRequestDto);
+    protected abstract searchQuery(knex: Knex, dto: IGridRequestDto): any;
 
-  protected abstract toObject(data: Record<string, unknown>): T;
+    protected abstract toObject(data: Record<string, unknown>): T;
 
-  public async filter(dto: IGridRequestDto): Promise<GridResponse<T>> {
-    let query = this.searchQuery(this.knex, dto);
-    query = this.addFilters(query, dto);
-    const countRes = await this.countQuery(query.clone().clear('select').clear('group'));
-    query = this.addSorters(query, dto);
-    query = this.addPaging(query, dto);
+    public async filter(dto: IGridRequestDto): Promise<GridResponse<T>> {
+        let query = this.searchQuery(this.knex, dto);
+        query = this.addFilters(query, dto);
+        const countRes = await this.countQuery(query.clone().clear('select').clear('group'));
+        query = this.addSorters(query, dto);
+        query = this.addPaging(query, dto);
 
-    const result = await query;
-    // @ts-ignore
-    const count = countRes[0]?.count ?? 0;
+        const result = await query;
+        const count = countRes[0]?.count ?? 0;
 
-    return new GridResponse(result.map(this.toObject), count, dto);
-  }
-
-  // @ts-ignore
-  protected async countQuery(knex: Knex) {
-    return knex.count('*', { as: 'count' });
-  }
-
-  // @ts-ignore
-  private addPaging(query, dto: IGridRequestDto) {
-    const paging = dto.paging || {
-      page: 1,
-      itemsPerPage: 10,
-    };
-
-    paging.page = Math.max(paging.page, 1);
-    paging.itemsPerPage = Math.max(paging.itemsPerPage, 1);
-    dto.paging = paging; // eslint-disable-line
-
-    return query
-      .offset((paging.page - 1) * paging.itemsPerPage)
-      .limit(paging.itemsPerPage);
-  }
-
-  // @ts-ignore
-  private addSorters(query, dto: IGridRequestDto) {
-    let q = query;
-    const allSorts: IGridRequestDtoSorter[] = JSON.parse(JSON.stringify(dto.sorter || []));
-    if (dto.additionalSorter) {
-      allSorts.push(...dto.additionalSorter);
+        return new GridResponse(result.map((item: any) => this.toObject(item)), count, dto);
     }
 
-    if (allSorts.length <= 0) {
-      return q;
+    protected async countQuery(knex: Knex): Promise<any> {
+        return knex.count('*', { as: 'count' });
     }
 
-    allSorts.forEach(sorter => {
-      const sColumn = sorter.column;
-
-      if (this.sortableColumns != null && sColumn in this.sortableColumns) {
-        const column = this.sortableColumns[sColumn];
-
-        if (typeof column === 'string') {
-          q = q.orderByRaw(`${column} ${sorter.direction.toLowerCase()}`);
-        } else {
-          q = column(q, sColumn, sorter.direction);
+    private static addOrExpression(query: any, filter: IGridRequestDtoFilter): any {
+        switch (filter.operator) {
+            case Operator.EQ:
+                return query.orWhere(filter.column, filter.value[0]);
+            case Operator.NEQ:
+                return query.orWhereNot(filter.column, filter.value[0]);
+            case Operator.IN:
+                return query.orWhereIn(filter.column, filter.value);
+            case Operator.NIN:
+                return query.orWhereNotIn(filter.column, filter.value);
+            case Operator.GT:
+                return query.orWhere(filter.column, '>', filter.value[0]);
+            case Operator.LT:
+                return query.orWhere(filter.column, '<', filter.value[0]);
+            case Operator.GTE:
+                return query.orWhere(filter.column, '>=', filter.value[0]);
+            case Operator.LTE:
+                return query.orWhere(filter.column, '<=', filter.value[0]);
+            case Operator.LIKE:
+                return query.orWhereLike(filter.column, `%${filter.value[0]}%`);
+            case Operator.STARTS:
+                return query.orWhereLike(filter.column, `${filter.value[0]}%`);
+            case Operator.ENDS:
+                return query.orWhereLike(filter.column, `%${filter.value[0]}`);
+            case Operator.NEMPTY:
+                return query.orWhereNotNull(filter.column);
+            case Operator.EMPTY:
+                return query.orWhereNull(filter.column);
+            case Operator.BETWEEN:
+                return query.orWhereBetween(filter.column, filter.value);
+            case Operator.NBETWEEN:
+                return query.orWhereNotBetween(filter.column, filter.value);
+            default:
+                return query.orWhere(filter.column, filter.value[0]);
         }
-      } else {
-        throw new Error(`[${sColumn}] is not allowed for sorting`);
-      }
-    });
-
-    return q;
-  }
-
-  private addFilters(query: any, dto: IGridRequestDto) {
-    let q = query;
-    const allFilters: IGridRequestDtoFilter[][] = JSON.parse(JSON.stringify(dto.filter || []));
-    if (dto.additionalFilter) {
-      allFilters.push(...dto.additionalFilter);
     }
 
-    const that = this; // eslint-disable-line
-    if (allFilters.length > 0) {
-      allFilters.forEach(and => {
-        q = q.andWhere(function() { // eslint-disable-line
-          // @ts-ignore
-          let innerQ = this; // eslint-disable-line
+    private addPaging(query: any, dto: IGridRequestDto): any {
+        const paging = dto.paging ?? {
+            page: 1,
+            itemsPerPage: 10,
+        };
 
-          and.forEach(or => {
-            const column = that.getFilterableColumn(or.column);
+        paging.page = Math.max(paging.page, 1);
+        paging.itemsPerPage = Math.max(paging.itemsPerPage, 1);
+        dto.paging = paging; // eslint-disable-line no-param-reassign
 
-            if (typeof column === 'string') {
-              innerQ = AKnexGrid.addOrExpression(innerQ, { column, value: or.value, operator: or.operator });
+        return query
+            .offset((paging.page - 1) * paging.itemsPerPage)
+            .limit(paging.itemsPerPage);
+    }
+
+    private addSorters(query: any, dto: IGridRequestDto): any {
+        let q = query;
+        const allSorts: IGridRequestDtoSorter[] = JSON.parse(JSON.stringify(dto.sorter ?? []));
+        if (dto.additionalSorter) {
+            allSorts.push(...dto.additionalSorter);
+        }
+
+        if (allSorts.length <= 0) {
+            return q;
+        }
+
+        allSorts.forEach((sorter) => {
+            const sColumn = sorter.column;
+
+            if (this.sortableColumns !== null && sColumn in this.sortableColumns) {
+                const column = this.sortableColumns[sColumn];
+
+                if (typeof column === 'string') {
+                    q = q.orderByRaw(`${column} ${sorter.direction.toLowerCase()}`);
+                } else {
+                    q = column(q, sColumn, sorter.direction);
+                }
             } else {
-              innerQ = column(innerQ, or.column, or.operator, or.value);
+                throw new Error(`[${sColumn}] is not allowed for sorting`);
             }
-          });
         });
-      });
+
+        return q;
     }
 
-    if (dto.search && (this.searchableColumns?.length ?? 0) > 0) {
-      q = q.andWhere(function() { // eslint-disable-line
-        // @ts-ignore
-        let innerQ = this; // eslint-disable-line
+    private addFilters(query: any, dto: IGridRequestDto): any {
+        let q = query;
+        const allFilters: IGridRequestDtoFilter[][] = JSON.parse(JSON.stringify(dto.filter ?? []));
+        if (dto.additionalFilter) {
+            allFilters.push(...dto.additionalFilter);
+        }
 
-        that.searchableColumns?.forEach(sColumn => {
-          const column = that.getFilterableColumn(sColumn);
+        const that = this; // eslint-disable-line
+        if (allFilters.length > 0) {
+            allFilters.forEach((and) => {
+                q = q.andWhere(function() {
+                    // @ts-expect-error Intentionally
+                    let innerQ = this; // eslint-disable-line
 
-          if (typeof column === 'string') {
-            innerQ = AKnexGrid.addOrExpression(innerQ, { column, value: [dto.search ?? ''], operator: Operator.LIKE });
-          } else {
-            innerQ = column(innerQ, sColumn, Operator.LIKE, [dto.search ?? '']);
-          }
-        });
-      });
+                    and.forEach((or) => {
+                        const column = that.getFilterableColumn(or.column);
+
+                        if (typeof column === 'string') {
+                            innerQ = AKnexGrid.addOrExpression(
+                                innerQ,
+                                {
+                                    column,
+                                    value: or.value,
+                                    operator: or.operator,
+                                },
+                            );
+                        } else {
+                            innerQ = column(innerQ, or.column, or.operator, or.value);
+                        }
+                    });
+                });
+            });
+        }
+
+        if (dto.search && (this.searchableColumns?.length ?? 0) > 0) {
+            q = q.andWhere(function() {
+                // @ts-expect-error Intentionally
+                let innerQ = this; // eslint-disable-line
+
+                that.searchableColumns?.forEach((sColumn) => {
+                    const column = that.getFilterableColumn(sColumn);
+
+                    if (typeof column === 'string') {
+                        innerQ = AKnexGrid.addOrExpression(
+                            innerQ,
+                            { column, value: [dto.search ?? ''], operator: Operator.LIKE },
+                        );
+                    } else {
+                        innerQ = column(innerQ, sColumn, Operator.LIKE, [dto.search ?? '']);
+                    }
+                });
+            });
+        }
+
+        return q;
     }
 
-    return q;
-  }
+    private getFilterableColumn(name: string): ICallbackFilter | string {
+        if (this.filterableColumns !== null && name in this.filterableColumns) {
+            return this.filterableColumns[name];
+        }
 
-  private getFilterableColumn(name: string): string | ICallbackFilter {
-    if (this.filterableColumns !== null && name in this.filterableColumns) {
-      return this.filterableColumns[name];
+        throw new Error(`[${name}] is not allowed for filtering`);
     }
-
-    throw new Error(`[${name}] is not allowed for filtering`);
-  }
-
-  // @ts-ignore
-  private static addOrExpression(query, filter: IGridRequestDtoFilter) {
-    switch (filter.operator) {
-      case Operator.EQ:
-        return query.orWhere(filter.column, filter.value[0]);
-      case Operator.NEQ:
-        return query.orWhereNot(filter.column, filter.value[0]);
-      case Operator.IN:
-        return query.orWhereIn(filter.column, filter.value);
-      case Operator.NIN:
-        return query.orWhereNotIn(filter.column, filter.value);
-      case Operator.GT:
-        return query.orWhere(filter.column, '>', filter.value[0]);
-      case Operator.LT:
-        return query.orWhere(filter.column, '<', filter.value[0]);
-      case Operator.GTE:
-        return query.orWhere(filter.column, '>=', filter.value[0]);
-      case Operator.LTE:
-        return query.orWhere(filter.column, '<=', filter.value[0]);
-      case Operator.LIKE:
-        return query.orWhereLike(filter.column, `%${filter.value[0]}%`);
-      case Operator.STARTS:
-        return query.orWhereLike(filter.column, `${filter.value[0]}%`);
-      case Operator.ENDS:
-        return query.orWhereLike(filter.column, `%${filter.value[0]}`);
-      case Operator.NEMPTY:
-        return query.orWhereNotNull(filter.column);
-      case Operator.EMPTY:
-        return query.orWhereNull(filter.column);
-      case Operator.BETWEEN:
-        return query.orWhereBetween(filter.column, filter.value);
-      case Operator.NBETWEEN:
-        return query.orWhereNotBetween(filter.column, filter.value);
-    }
-
-    return query.orWhere(filter.column, filter.value[0]);
-  }
 
 }
