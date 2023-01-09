@@ -1,4 +1,5 @@
 .idea
+.pnpm-store
 .env
 dist
 coverage

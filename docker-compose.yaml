@@ -14,7 +14,7 @@ services:
             # Envs for tests are load from .jest/testEnvs.js
             JEST_DOCKER: 1
             APP_ENV: 'debug'
-            MONGODB_DSN: 'mongodb://mongo:27017/nodejs-data-grid'
+            MARIADB_DSN: 'mariadb://root:root@mariadb/test'
         command: sleep infinity
 
     mariadb:
