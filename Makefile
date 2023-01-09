@@ -1,3 +1,4 @@
+DC=docker-compose
 DCS=docker-compose exec -T app
 DCM=docker-compose exec -T mariadb
 
@@ -15,45 +16,45 @@ Linux:
 		-e "s/{DEV_GID}/$(shell if [ "$(shell uname)" = "Linux" ]; then echo $(shell id -g); else echo '1001'; fi)/g" \
 		.env.dist > .env; \
 
-init: docker-up-force yarn-install
+init: docker-up-force pnpm-install
 
 publish:
-	npx yarn build || true
-	npx npm publish
+	npx pnpm build || true
+	npx pnpm publish
 
 docker-compose.ci.yml:
 	# Comment out any port forwarding
 	sed -r 's/^(\s+ports:)$$/#\1/g; s/^(\s+- \$$\{DEV_IP\}.*)$$/#\1/g' docker-compose.yaml > docker-compose.ci.yml
 
 docker-up-force: .env .lo0-up
-	docker-compose pull --ignore-pull-failures
-	docker-compose up -d --force-recreate --remove-orphans --build
-	docker-compose run --rm wait-for-it mariadb:3306 -t 600
+	$(DC) pull --ignore-pull-failures
+	$(DC) up -d --build --force-recreate --remove-orphans
+	$(DC) run --rm wait-for-it mariadb:3306 -t 600
 	$(DCM) mysql -proot -e "create database if not exists test"
 
 docker-down-clean: .env .lo0-down
 	docker-compose down -v
 
 start:
-	$(DCS) yarn start
+	$(DCS) pnpm start
 
-yarn-install:
-	$(DCS) yarn install
+pnpm-install:
+	$(DCS) pnpm install
 
-yarn-update:
-	$(DCS) yarn upgrade
+pnpm-update:
+	$(DCS) pnpm upgrade
 
-yarn-outdated:
-	$(DCS) yarn outdated
+pnpm-outdated:
+	$(DCS) pnpm outdated
 
-yarn-rebuild:
-	$(DCS) yarn rebuild
+pnpm-rebuild:
+	$(DCS) pnpm rebuild
 
 lint:
-	$(DCS) yarn lint-ci
+	$(DCS) pnpm lint-ci
 
 unit:
-	$(DCS) yarn test
+	$(DCS) pnpm test
 
 fasttest: lint unit
 
@@ -61,4 +62,4 @@ localtest:
 	npx yarn lint
 	npx yarn test
 
-test: docker-up-force yarn-install fasttest docker-down-clean
+test: docker-up-force pnpm-install fasttest docker-down-clean
