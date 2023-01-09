@@ -5,9 +5,9 @@ specifiers:
   '@deepkit/crypto': ^1.0.1-alpha.77
   '@deepkit/injector': ^1.0.1-alpha.85
   '@deepkit/logger': ^1.0.1-alpha.77
-  '@deepkit/mysql': ^1.0.1-alpha.71
+  '@deepkit/mysql': ^1.0.1-alpha.85
   '@deepkit/orm': ^1.0.1-alpha.85
-  '@deepkit/sql': ^1.0.1-alpha.71
+  '@deepkit/sql': ^1.0.1-alpha.85
   '@deepkit/stopwatch': ^1.0.1-alpha.85
   '@deepkit/type': ^1.0.1-alpha.85
   '@deepkit/type-compiler': ^1.0.1-alpha.83
@@ -15,7 +15,7 @@ specifiers:
   '@types/jest': ^29.2.5
   '@types/node': ^18.11.18
   jest: ^29.3.1
-  knex: ^2.3.0
+  knex: ^2.4.0
   mysql: ^2.18.1
   rxjs: ^7.8.0
   ts-jest: ^29.0.3
@@ -32,7 +32,7 @@ optionalDependencies:
   '@deepkit/stopwatch': 1.0.1-alpha.85_kjxwvp6biua2rjf3r3qaivgofe
   '@deepkit/type': 1.0.1-alpha.85_mcay55ktffdozwll5wgb6oqvwq
   '@deepkit/type-compiler': 1.0.1-alpha.83_typescript@4.9.4
-  knex: 2.3.0_mysql@2.18.1
+  knex: 2.4.0_mysql@2.18.1
   mysql: 2.18.1
   rxjs: 7.8.0
   typeorm: 0.3.11_ts-node@10.9.1
@@ -564,7 +564,7 @@ packages:
       eslint-config-airbnb-base: 15.0.0_ol7jqilc3wemtdbq3nzhywgxq4
       eslint-import-resolver-typescript: 3.5.2_ol7jqilc3wemtdbq3nzhywgxq4
       eslint-plugin-import: 2.26.0_cxu27kyieece4tnvunezm4whiq
-      eslint-plugin-jest: 27.2.0_5lw7u3puxf47qfi53ot2fqzcvq
+      eslint-plugin-jest: 27.2.1_5lw7u3puxf47qfi53ot2fqzcvq
       eslint-plugin-promise: 6.1.1_eslint@8.31.0
       eslint-plugin-simple-import-sort: 8.0.0_eslint@8.31.0
     transitivePeerDependencies:
@@ -978,8 +978,8 @@ packages:
     resolution: {integrity: sha512-Nmh0K3iWQJzniTuPRcJn5hxXkfB1T1pgB89SBig5PlJQU5yocazeu4jATJlaA0GYFKWMqDdvYemoSnF2pXgLVA==}
     dev: true
 
-  /@types/graceful-fs/4.1.5:
-    resolution: {integrity: sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==}
+  /@types/graceful-fs/4.1.6:
+    resolution: {integrity: sha512-Sig0SNORX9fdW+bQuTEovKj3uHcUL6LQKbCrrqb1X7J6/ReAbhCXRAhc+SMejhLELFj2QcyuxmUooZ4bt5ReSw==}
     dependencies:
       '@types/node': 18.11.18
     dev: true
@@ -1563,8 +1563,8 @@ packages:
     dev: false
     optional: true
 
-  /commander/9.4.1:
-    resolution: {integrity: sha512-5EEkTNyHNGFPD2H+c/dXXfQZYa/scCKasxWcXJaWnNJ99pnQN9Vnmqow+p+PlFPE63Q6mThaZws1T+HxfpgtPw==}
+  /commander/9.5.0:
+    resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
     engines: {node: ^12.20.0 || >=14}
     dev: false
     optional: true
@@ -1939,8 +1939,8 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-jest/27.2.0_5lw7u3puxf47qfi53ot2fqzcvq:
-    resolution: {integrity: sha512-KGIYtelk4rIhKocxRKUEeX+kJ0ZCab/CiSgS8BMcKD7AY7YxXhlg/d51oF5jq2rOrtuJEDYWRwXD95l6l2vtrA==}
+  /eslint-plugin-jest/27.2.1_5lw7u3puxf47qfi53ot2fqzcvq:
+    resolution: {integrity: sha512-l067Uxx7ZT8cO9NJuf+eJHvt6bqJyz2Z29wykyEdz/OtmcELQl2MQGQLX8J94O1cSJWAwUSEvCjwjA7KEK3Hmg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': ^5.0.0
@@ -2870,7 +2870,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.3.1
-      '@types/graceful-fs': 4.1.5
+      '@types/graceful-fs': 4.1.6
       '@types/node': 18.11.18
       anymatch: 3.1.3
       fb-watchman: 2.0.2
@@ -3185,8 +3185,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /knex/2.3.0_mysql@2.18.1:
-    resolution: {integrity: sha512-WMizPaq9wRMkfnwKXKXgBZeZFOSHGdtoSz5SaLAVNs3WRDfawt9O89T4XyH52PETxjV8/kRk0Yf+8WBEP/zbYw==}
+  /knex/2.4.0_mysql@2.18.1:
+    resolution: {integrity: sha512-i0GWwqYp1Hs2yvc2rlDO6nzzkLhwdyOZKRdsMTB8ZxOs2IXQyL5rBjSbS1krowCh6V65T4X9CJaKtuIfkaPGSA==}
     engines: {node: '>=12'}
     hasBin: true
     requiresBuild: true
@@ -3215,7 +3215,7 @@ packages:
         optional: true
     dependencies:
       colorette: 2.0.19
-      commander: 9.4.1
+      commander: 9.5.0
       debug: 4.3.4
       escalade: 3.1.1
       esm: 3.2.25

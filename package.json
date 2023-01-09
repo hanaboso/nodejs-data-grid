@@ -12,8 +12,6 @@
     "keywords": [],
     "author": "info@hanaboso.com",
     "license": "GPL-3.0-or-later",
-    "dependencies": {
-    },
     "optionalDependencies": {
         "@deepkit/core": "^1.0.1-alpha.77",
         "@deepkit/crypto": "^1.0.1-alpha.77",
@@ -23,7 +21,7 @@
         "@deepkit/stopwatch": "^1.0.1-alpha.85",
         "@deepkit/type": "^1.0.1-alpha.85",
         "@deepkit/type-compiler": "^1.0.1-alpha.83",
-        "knex": "^2.3.0",
+        "knex": "^2.4.0",
         "mysql": "^2.18.1",
         "rxjs": "^7.8.0",
         "typeorm": "^0.3.11"
