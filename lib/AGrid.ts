@@ -1,5 +1,6 @@
 import { ClassType } from '@deepkit/core';
 import { Database, FilterQuery, OrmEntity, Query } from '@deepkit/orm';
+import GridError from './GridError';
 import {
     IGridRequestDto,
     IGridRequestDtoFilter,
@@ -19,7 +20,8 @@ export default abstract class AGrid<T extends OrmEntity> {
 
     protected searchableColumns: string[] | null = null;
 
-    public constructor(private readonly db: Database) {}
+    public constructor(private readonly db: Database) {
+    }
 
     public async filter(dto: IGridRequestDto): Promise<GridResponse<T>> {
         let query = this.searchQuery(this.db.query(this.entity));
@@ -128,7 +130,7 @@ export default abstract class AGrid<T extends OrmEntity> {
                 if (column in this.sortableColumns) {
                     column = this.sortableColumns[column];
                 } else {
-                    throw new Error(`[${column}] is not allowed for sorting`);
+                    throw new GridError(`[${column}] is not allowed for sorting`);
                 }
             }
             // @ts-expect-error Intentionally
@@ -180,7 +182,7 @@ export default abstract class AGrid<T extends OrmEntity> {
             if (column in this.filterableColumns) {
                 column = this.filterableColumns[column];
             } else {
-                throw new Error(`[${column}] is not allowed for filtering`);
+                throw new GridError(`[${column}] is not allowed for filtering`);
             }
         }
 
