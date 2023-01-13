@@ -1,4 +1,5 @@
 import { Knex } from 'knex';
+import GridError from './GridError';
 import { Direction, IGridRequestDto, IGridRequestDtoFilter, IGridRequestDtoSorter, Operator } from './GridRequestDto';
 import GridResponse from './GridResponse';
 
@@ -24,7 +25,8 @@ export default abstract class AKnexGrid<T> {
 
     protected searchableColumns: string[] | null = null;
 
-    public constructor(private readonly knex: Knex) {}
+    public constructor(private readonly knex: Knex) {
+    }
 
     protected abstract searchQuery(knex: Knex, dto: IGridRequestDto): any;
 
@@ -122,7 +124,7 @@ export default abstract class AKnexGrid<T> {
                     q = column(q, sColumn, sorter.direction);
                 }
             } else {
-                throw new Error(`[${sColumn}] is not allowed for sorting`);
+                throw new GridError(`[${sColumn}] is not allowed for sorting`);
             }
         });
 
@@ -191,7 +193,7 @@ export default abstract class AKnexGrid<T> {
             return this.filterableColumns[name];
         }
 
-        throw new Error(`[${name}] is not allowed for filtering`);
+        throw new GridError(`[${name}] is not allowed for filtering`);
     }
 
 }

@@ -8,6 +8,7 @@ import {
     SelectQueryBuilder,
     WhereExpressionBuilder,
 } from 'typeorm';
+import GridError from './GridError';
 import { Direction, IGridRequestDto, IGridRequestDtoFilter, Operator } from './GridRequestDto';
 import GridResponse from './GridResponse';
 
@@ -50,10 +51,10 @@ export default abstract class ATypeORMGrid<T extends BaseEntity> {
         const hashOne = randomBytes(10).toString('hex');
         const hashTwo = randomBytes(10).toString('hex');
         const getValueOne = (): string => values[0] ?? (() => {
-            throw new Error(`Operator ${operator}: Missing 1st value!`);
+            throw new GridError(`Operator ${operator}: Missing 1st value!`);
         })();
         const getValueTwo = (): string => values[1] ?? (() => {
-            throw new Error(`Operator ${operator}: Missing 2nd value!`);
+            throw new GridError(`Operator ${operator}: Missing 2nd value!`);
         })();
 
         switch (operator) {
@@ -136,7 +137,7 @@ export default abstract class ATypeORMGrid<T extends BaseEntity> {
             return filters[key];
         }
 
-        throw new Error(`Column ${key} cannot be used for filtering!`);
+        throw new GridError(`Column ${key} cannot be used for filtering!`);
     }
 
     private getSorterColumn(key: string): ICallbackSorter | string {
@@ -146,7 +147,7 @@ export default abstract class ATypeORMGrid<T extends BaseEntity> {
             return sorters[key];
         }
 
-        throw new Error(`Column ${key} cannot be used for sorting!`);
+        throw new GridError(`Column ${key} cannot be used for sorting!`);
     }
 
     private addFilters(queryBuilder: SelectQueryBuilder<T>, dto: IGridRequestDto): void {
