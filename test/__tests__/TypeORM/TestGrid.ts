@@ -276,7 +276,7 @@ describe('TypeORM', () => {
         });
 
         expect(response.items).toEqual(items.filter(({ id }) => id.toString().includes('5')));
-  });
+    });
 
     it('Test WHERE STARTS', async () => {
         const response = await grid.filter({

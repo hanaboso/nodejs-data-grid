@@ -1,5 +1,3 @@
-import { MySQLDatabaseAdapter } from '@deepkit/mysql';
-import { Database } from '@deepkit/orm';
 import kknex, { Knex } from 'knex';
 import { Direction, IGridRequestDto, Operator } from '../../lib/GridRequestDto';
 import ExampleKnexGrid from '../ExampleKnexGrid';
@@ -24,7 +22,9 @@ describe('Grid tests', () => {
         await knex.raw('CREATE TABLE example(id int primary key, name varchar(255), lososId int, foreign key (lososId) references losos(id));');
         await knex.raw('SET FOREIGN_KEY_CHECKS = 1;');
         for (let i = 1; i <= 5; i++) {
+            // eslint-disable-next-line no-await-in-loop
             await knex.raw(`INSERT INTO losos(id, name) values(${i}, 'losos_${i}')`);
+            // eslint-disable-next-line no-await-in-loop
             await knex.raw(`INSERT INTO example(id, name, lososId) values(${i}, 'name_${i}', ${i})`);
         }
     });
@@ -115,7 +115,7 @@ describe('Grid tests', () => {
     });
 
     it('Last page', async () => {
-        dto.paging!.page = 3;
+        dto.paging = { page: 3, itemsPerPage: 2 };
         const data = await grid.filter(dto);
         expect(data.paging.total).toEqual(5);
         expect(data.items).toHaveLength(1);

@@ -23,7 +23,8 @@ export default class ExampleGrid extends AKnexGrid<GridItem> {
         'namae',
     ];
 
-    protected searchQuery(knex: Knex, dto: IGridRequestDto) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected searchQuery(knex: Knex, dto: IGridRequestDto): unknown {
         return knex
             .from('example as e')
             .leftJoin('losos as l', 'e.lososId', '=', 'l.id')

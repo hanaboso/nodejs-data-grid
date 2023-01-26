@@ -21,6 +21,7 @@ export default class ExampleGrid extends AGrid<ExampleEntity> {
         'namae',
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     protected searchQuery(query: Query<any>): Query<any> {
         return query.select('id', 'name');
     }

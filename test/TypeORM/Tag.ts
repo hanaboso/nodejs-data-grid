@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { Column, Entity, ManyToMany } from 'typeorm';
 import AAbstract from './AAbstract';
 import Item from './Item';
 

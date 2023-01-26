@@ -1,14 +1,13 @@
 export default class GridItem {
 
-    constructor(public id: number, public name: string, public losos: string) {
+    public constructor(public id: number, public name: string, public losos: string) {
     }
 
-    static fromRaw(data: Record<string, unknown>) {
+    public static fromRaw(data: Record<string, unknown>): GridItem {
         return new GridItem(
-            // @ts-expect-error
-            data.id,
-            data.name,
-            data.losos,
+            data.id as number,
+            data.name as string,
+            data.losos as string,
         );
     }
 
