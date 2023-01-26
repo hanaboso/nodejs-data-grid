@@ -207,9 +207,9 @@ export default abstract class ATypeORMGrid<T extends BaseEntity> {
     }
 
     private addPaging(queryBuilder: SelectQueryBuilder<T>, dto: IGridRequestDto): void {
-        const paging = dto.paging ?? {
-            page: 1,
-            itemsPerPage: 10,
+        const paging = {
+            page: dto?.paging?.page ?? 1,
+            itemsPerPage: dto?.paging?.itemsPerPage ?? 10,
         };
 
         paging.page = Math.max(paging.page, 1);

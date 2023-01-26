@@ -99,9 +99,9 @@ export default abstract class AGrid<T extends OrmEntity> {
     }
 
     private addPaging(query: Query<T>, dto: IGridRequestDto): Query<T> {
-        const paging = dto.paging ?? {
-            page: 1,
-            itemsPerPage: 10,
+        const paging = {
+            page: dto?.paging?.page ?? 1,
+            itemsPerPage: dto?.paging?.itemsPerPage ?? 10,
         };
 
         paging.page = Math.max(paging.page, 1);

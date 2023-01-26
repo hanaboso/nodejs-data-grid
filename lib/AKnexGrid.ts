@@ -87,9 +87,9 @@ export default abstract class AKnexGrid<T> {
     }
 
     private addPaging(query: any, dto: IGridRequestDto): any {
-        const paging = dto.paging ?? {
-            page: 1,
-            itemsPerPage: 10,
+        const paging = {
+            page: dto?.paging?.page ?? 1,
+            itemsPerPage: dto?.paging?.itemsPerPage ?? 10,
         };
 
         paging.page = Math.max(paging.page, 1);
