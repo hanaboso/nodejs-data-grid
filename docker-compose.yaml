@@ -18,7 +18,7 @@ services:
         command: sleep infinity
 
     mariadb:
-        image: mariadb:latest
+        image: mariadb:10
         ports:
             - ${DEV_IP}:3306:3306
         environment:

@@ -59,7 +59,7 @@ unit:
 fasttest: lint unit
 
 localtest:
-	npx yarn lint
-	npx yarn test
+	pnpm run lint
+	pnpm run test
 
 test: docker-up-force pnpm-install fasttest docker-down-clean

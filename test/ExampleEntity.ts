@@ -9,7 +9,7 @@ export class LososEntity {
     public id: AutoIncrement & integer & PrimaryKey = 0;
 
     public constructor(
-        public name: string = 'l',
+        public name = 'l',
     ) {
     }
 
