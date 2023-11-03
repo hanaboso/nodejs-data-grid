@@ -69,6 +69,8 @@ export default abstract class AKnexGrid<T> {
                 return query.orWhere(filter.column, '<=', filter.value[0]);
             case Operator.LIKE:
                 return query.orWhereLike(filter.column, `%${filter.value[0]}%`);
+            case Operator.ILIKE:
+                return query.orWhereILike(filter.column, `%${filter.value[0]}%`);
             case Operator.STARTS:
                 return query.orWhereLike(filter.column, `${filter.value[0]}%`);
             case Operator.ENDS:
@@ -176,10 +178,10 @@ export default abstract class AKnexGrid<T> {
                     if (typeof column === 'string') {
                         innerQ = AKnexGrid.addOrExpression(
                             innerQ,
-                            { column, value: [dto.search ?? ''], operator: Operator.LIKE },
+                            { column, value: [dto.search ?? ''], operator: Operator.ILIKE },
                         );
                     } else {
-                        innerQ = column(innerQ, sColumn, Operator.LIKE, [dto.search ?? '']);
+                        innerQ = column(innerQ, sColumn, Operator.ILIKE, [dto.search ?? '']);
                     }
                 });
             });

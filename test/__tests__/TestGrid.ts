@@ -175,6 +175,13 @@ describe('Grid tests', () => {
         expect(data.items).toHaveLength(0);
     });
 
+    it('Search case insensitive', async () => {
+        dto.search = 'NAME';
+        const data = await grid.filter(dto);
+        expect(data.items).toHaveLength(2);
+        expect(data.items[0].id).toEqual(1);
+    });
+
     it('Callback filters and sorters', async () => {
         dto.filter = [[{
             value: ['1', '3', '5'],

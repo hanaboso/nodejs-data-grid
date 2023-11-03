@@ -32,6 +32,7 @@ export enum Operator {
     GTE = 'GTE',
     LTE = 'LTE',
     LIKE = 'LIKE',
+    ILIKE = 'ILIKE',
     STARTS = 'STARTS',
     ENDS = 'ENDS',
     NEMPTY = 'NEMPTY',
